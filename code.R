@@ -4,6 +4,9 @@ library(ggplot2)
 library(glmtoolbox)
 library(generalhoslem)
 library(gofcat)
+library(car)
+library(stargazer)
+
 # Read the data
 data <- read.csv(file = "heart_statlog_cleveland_hungary_final.csv")
 # Check the structure of the data
@@ -86,14 +89,202 @@ hltest(logit_0)
 # H0: Specification of the model is correct
 # H1: Specification of the model is incorrect
 
-# p-value = 0.28% > 5% (significance level alpha), we fail to reject H0
+# p-value = 28% > 5% (significance level alpha), we fail to reject H0
 
 # Genaral to specific approach (backward selection)
 
-# Check if variable resting.ecg is statistically significant
-# H0: resting.ecg = 0
-logit_1 <- glm(target ~ age + sex + chest.pain.type + resting.bp.s, + cholesterol
+# Check if variable "resting.ecg.1" is statistically insignificant
+
+# H0: resting.ecg.1 = 0
+linearHypothesis(logit_0, "resting.ecg.1 = 0")
+# New_model
+logit_1 <- glm(target ~ age + sex + resting.bp.s + cholesterol
                + fasting.blood.sugar + max.heart.rate + exercise.angina
-               + oldpeak + ST.slope + I(age^2) + age:max.heart.rate, 
+               + oldpeak + chest.pain.type.atypical.angina + chest.pain.type.non.anginal
+               + chest.pain.type.asymptomatic + resting.ecg.2 
+               + ST.slope.flat + ST.slope.downsloping + I(age^2) + age:max.heart.rate, 
                data = data, family = binomial('logit'))
+# P-value = 95% > 5% (significance level alpha), we fail to reject H0
 summary(logit_1)
+# Check if variables "resting.ecg.1", "chest.pain.type.atypical.angina" 
+# are jointly statistically insignificant
+
+# H0: resting.ecg.1 = 0 & chest.pain.type.atypical.angina = 0
+linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
+                            "chest.pain.type.atypical.angina = 0"))
+# Model
+logit_2 <- glm(target ~ age + sex + resting.bp.s + cholesterol
+               + fasting.blood.sugar + max.heart.rate + exercise.angina
+               + oldpeak + chest.pain.type.non.anginal
+               + chest.pain.type.asymptomatic + resting.ecg.2 
+               + ST.slope.flat + ST.slope.downsloping + I(age^2) + age:max.heart.rate, 
+               data = data, family = binomial('logit'))
+
+# P-value = 95% > 5% (significance level alpha), we fail to reject H0
+summary(logit_2)
+
+# Check if variables "resting.ecg.1", "chest.pain.type.atypical.angina" 
+# "chest.pain.type.non.anginal" are jointly statistically insignificant
+
+# H0: resting.ecg.1 = 0 & chest.pain.type.atypical.angina = 0 &
+# chest.pain.type.non.anginal = 0
+linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
+                            "chest.pain.type.atypical.angina = 0",
+                            "chest.pain.type.non.anginal = 0"))
+# Model
+logit_3 <- glm(target ~ age + sex + resting.bp.s + cholesterol
+               + fasting.blood.sugar + max.heart.rate + exercise.angina
+               + oldpeak + chest.pain.type.asymptomatic + resting.ecg.2 
+               + ST.slope.flat + ST.slope.downsloping + I(age^2) + age:max.heart.rate, 
+               data = data, family = binomial('logit'))
+
+# P-value = 98% > 5% (significance level alpha), we fail to reject H0
+summary(logit_3)                 
+
+# Check if variables "resting.ecg.1", "chest.pain.type.atypical.angina" 
+# "chest.pain.type.non.anginal", "age^2" are jointly statistically insignificant
+
+# H0: resting.ecg.1 = 0 & chest.pain.type.atypical.angina = 0 &
+# chest.pain.type.non.anginal = 0 & age^2 = 0
+linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
+                            "chest.pain.type.atypical.angina = 0",
+                            "chest.pain.type.non.anginal = 0",
+                            "I(age^2) = 0"))
+# Model
+logit_4 <- glm(target ~ age + sex + resting.bp.s + cholesterol
+               + fasting.blood.sugar + max.heart.rate + exercise.angina
+               + oldpeak + chest.pain.type.asymptomatic + resting.ecg.2 
+               + ST.slope.flat + ST.slope.downsloping + age:max.heart.rate, 
+               data = data, family = binomial('logit'))
+
+# P-value = 82% > 5% (significance level alpha), we fail to reject H0
+summary(logit_4)         
+
+# Check if variables "resting.ecg.1", "chest.pain.type.atypical.angina" 
+# "chest.pain.type.non.anginal", "age^2", "age" are jointly statistically insignificant
+
+# H0: resting.ecg.1 = 0 & chest.pain.type.atypical.angina = 0 &
+# chest.pain.type.non.anginal = 0 & age^2 = 0 & age = 0
+linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
+                            "chest.pain.type.atypical.angina = 0",
+                            "chest.pain.type.non.anginal = 0",
+                            "I(age^2) = 0",
+                            "age = 0"))
+# Model
+logit_5 <- glm(target ~ sex + resting.bp.s + cholesterol
+               + fasting.blood.sugar + max.heart.rate + exercise.angina
+               + oldpeak + chest.pain.type.asymptomatic + resting.ecg.2 
+               + ST.slope.flat + ST.slope.downsloping + age:max.heart.rate, 
+               data = data, family = binomial('logit'))
+
+# P-value = 75% > 5% (significance level alpha), we fail to reject H0
+summary(logit_5)   
+
+# Check if variables "resting.ecg.1", "chest.pain.type.atypical.angina" 
+# "chest.pain.type.non.anginal", "age^2", "age" , "resting.ecg.2"
+# are jointly statistically insignificant
+
+# H0: resting.ecg.1 = 0 & chest.pain.type.atypical.angina = 0 &
+# chest.pain.type.non.anginal = 0 & age^2 = 0 & age = 0 & resting.ecg.2 = 0
+linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
+                            "chest.pain.type.atypical.angina = 0",
+                            "chest.pain.type.non.anginal = 0",
+                            "I(age^2) = 0",
+                            "age = 0",
+                            "resting.ecg.2 = 0"))
+# Model
+logit_6 <- glm(target ~ sex + resting.bp.s + cholesterol
+               + fasting.blood.sugar + max.heart.rate + exercise.angina
+               + oldpeak + chest.pain.type.asymptomatic + ST.slope.flat 
+               + ST.slope.downsloping + age:max.heart.rate, 
+               data = data, family = binomial('logit'))
+
+# P-value = 65% > 5% (significance level alpha), we fail to reject H0
+summary(logit_6)   
+
+# Check if variables "resting.ecg.1", "chest.pain.type.atypical.angina" 
+# "chest.pain.type.non.anginal", "age^2", "age" , "resting.ecg.2"
+# "resting.bp.s" are jointly statistically insignificant
+
+# H0: resting.ecg.1 = 0 & chest.pain.type.atypical.angina = 0 &
+# chest.pain.type.non.anginal = 0 & age^2 = 0 & age = 0 & resting.ecg.2 = 0
+# resting.bp.s = 0
+linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
+                            "chest.pain.type.atypical.angina = 0",
+                            "chest.pain.type.non.anginal = 0",
+                            "I(age^2) = 0",
+                            "age = 0",
+                            "resting.ecg.2 = 0",
+                            "resting.bp.s = 0"))
+# Model
+logit_7 <- glm(target ~ sex + cholesterol + fasting.blood.sugar + max.heart.rate 
+               + exercise.angina + oldpeak + chest.pain.type.asymptomatic 
+               + ST.slope.flat + ST.slope.downsloping + age:max.heart.rate, 
+               data = data, family = binomial('logit'))
+
+# P-value = 55% > 5% (significance level alpha), we fail to reject H0
+summary(logit_7)  
+
+
+# Check if variables "resting.ecg.1", "chest.pain.type.atypical.angina" 
+# "chest.pain.type.non.anginal", "age^2", "age" , "resting.ecg.2"
+# "resting.bp.s" , "ST.slope.downsloping" are jointly statistically insignificant
+
+# H0: resting.ecg.1 = 0 & chest.pain.type.atypical.angina = 0 &
+# chest.pain.type.non.anginal = 0 & age^2 = 0 & age = 0 & resting.ecg.2 = 0
+# resting.bp.s = 0 & ST.slope.downsloping = 0
+linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
+                            "chest.pain.type.atypical.angina = 0",
+                            "chest.pain.type.non.anginal = 0",
+                            "I(age^2) = 0",
+                            "age = 0",
+                            "resting.ecg.2 = 0",
+                            "resting.bp.s = 0",
+                            "ST.slope.downsloping = 0"))
+# Final model with all variables statistically significant
+
+final_model <- glm(target ~ sex + cholesterol + fasting.blood.sugar + max.heart.rate 
+               + exercise.angina + oldpeak + chest.pain.type.asymptomatic 
+               + ST.slope.flat + age:max.heart.rate, 
+               data = data, family = binomial('logit'))
+
+# P-value = 30% > 5% (significance level alpha), we fail to reject H0
+summary(final_model) 
+
+# Check the specification
+
+# Linktest
+summary(linktest(final_model))
+
+# RESULT: The specification of our model is correct
+
+# H0: Specification of the model is correct
+# H1: Specification of the model is incorrect
+
+# yhat is statistically significant - p-value < 5% (significance level alpha), 
+# therefore we reject H0 in favor of H1. yhat2 is statistically
+# insignificant - p-value 77% > 5% (significance level alpha), we fail to 
+# reject H0.
+
+
+# Hosmer-Lemeshow test
+hltest(final_model)
+
+# RESULT: The specification of our model is correct
+
+# H0: Specification of the model is correct
+# H1: Specification of the model is incorrect
+
+# p-value = 76% > 5% (significance level alpha), we fail to reject H0
+
+# Print some of the models (including initial and final models)
+stargazer(logit_0,
+          logit_1,
+          logit_2,
+          logit_3,
+          logit_4,
+          logit_7,
+          final_model,
+          type = "text")
+
+
