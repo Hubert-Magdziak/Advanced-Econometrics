@@ -12,6 +12,8 @@ library(lmtest)
 library(zoo)
 library(MASS)
 library(betareg)
+library(DescTools)
+
 # Read the data
 setwd("/Users/hubertmagdziak/Desktop/Github/Advanced-Econometrics")
 data <- read.csv(file = "heart_statlog_cleveland_hungary_final.csv")
@@ -96,6 +98,20 @@ hltest(logit_0)
 # H1: Specification of the model is incorrect
 
 # p-value = 28% > 5% (significance level alpha), we fail to reject H0
+
+# Check if all the variables are jointly statisticall significant
+null_model <- glm(target ~ 1, data = data, family = binomial('logit'))
+
+# Likelihood ratio test
+lrtest(logit_0, null_model)
+
+# H0: The restricted model is better
+# H1: The unrestricted model is better
+
+# Likelihood ratio test p-value < 5% (significance level alpha), we reject
+# null hypothesis in favor of alternative hypothesis. The unrestricted model
+# is better, therefore the variables in initial model are jointly statistically
+# significant
 
 # Genaral to specific approach (backward selection)
 
@@ -299,7 +315,7 @@ logitmfx(formula = target ~ sex + cholesterol + fasting.blood.sugar + max.heart.
          + ST.slope.flat + age:max.heart.rate, 
          data = data, atmean = T)
 
-#. INTERPRETATION OF MARGINAL EFFECTS
+#. INTERPRETATION OF MARGINAL EFFECTS FOR MEAN
 
 # The marginal effects are crucial for analysing results of the model.
 # In the logit model we cannot interpret the coefficients quantitatively. The only
@@ -310,4 +326,28 @@ logitmfx(formula = target ~ sex + cholesterol + fasting.blood.sugar + max.heart.
 # This might be reached by calculating marginal effects. Then the coefficients
 # might be interpreted quantitatively.
 
-#
+# Variable "sex"
+
+# A man with average characteristics have about 36 p.p higher probability
+# of having heart disease than woman ceteris paribus.
+
+
+# Average marginal effects for the final model
+logitmfx(formula = target ~ sex + cholesterol + fasting.blood.sugar + max.heart.rate 
+         + exercise.angina + oldpeak + chest.pain.type.asymptomatic 
+         + ST.slope.flat + age:max.heart.rate, 
+         data = data, atmean = F)
+
+# INTERPRETATION OF AVERAGE MARGINAL EFFECTS
+
+# Variable "sex"
+
+# On average men have about 18.1 p.p higher probability of having heart disease
+# than women ceteris paribus.
+
+# Measures to assess performance of the model - McKelveyZavoina
+PseudoR2(final_model, which = "all")
+
+# McKelveyZavoina = 66%
+# If a hidden variable would be observed, the model would explain about 66% of 
+# its total variation.
