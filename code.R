@@ -6,8 +6,14 @@ library(generalhoslem)
 library(gofcat)
 library(car)
 library(stargazer)
-
+library(mfx)
+library(sandwich)
+library(lmtest)
+library(zoo)
+library(MASS)
+library(betareg)
 # Read the data
+setwd("/Users/hubertmagdziak/Desktop/Github/Advanced-Econometrics")
 data <- read.csv(file = "heart_statlog_cleveland_hungary_final.csv")
 # Check the structure of the data
 glimpse(data)
@@ -287,4 +293,21 @@ stargazer(logit_0,
           final_model,
           type = "text")
 
+# Marginal effects for mean observation for the final model
+logitmfx(formula = target ~ sex + cholesterol + fasting.blood.sugar + max.heart.rate 
+         + exercise.angina + oldpeak + chest.pain.type.asymptomatic 
+         + ST.slope.flat + age:max.heart.rate, 
+         data = data, atmean = T)
 
+#. INTERPRETATION OF MARGINAL EFFECTS
+
+# The marginal effects are crucial for analysing results of the model.
+# In the logit model we cannot interpret the coefficients quantitatively. The only
+# way is the qualitative approach based on sign of the coefficient.
+# Positive sign for the coefficients impose that increase of that variable 
+# by 1 unit has positive influence on probability of observing success in 
+# the dependent variable. However we are always keen on quantitative analysis.
+# This might be reached by calculating marginal effects. Then the coefficients
+# might be interpreted quantitatively.
+
+#
