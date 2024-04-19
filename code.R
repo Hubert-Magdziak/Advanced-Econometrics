@@ -1,4 +1,4 @@
-# Libraries
+# --------------------------  Libraries --------------------------
 library(dplyr)
 library(ggplot2)
 library(glmtoolbox)
@@ -13,35 +13,46 @@ library(zoo)
 library(MASS)
 library(betareg)
 library(DescTools)
-
+#-----------------------------------------------------------------
 # Read the data
-setwd("/Users/hubertmagdziak/Desktop/Github/Advanced-Econometrics")
 data <- read.csv(file = "heart_statlog_cleveland_hungary_final.csv")
+
 # Check the structure of the data
 glimpse(data)
+
 # Are there NA's?
 data[!complete.cases(data),]
 
-# EDA
+# ----------------------------- EDA --------------------------------
 ggplot(data = data, aes(x = age, color = sex)) +
-  geom_histogram(binwidth = 5, color = 'black', fill = 'lightblue', position = 'dodge') +
+  geom_histogram(binwidth = 5, 
+                 color = 'black', 
+                 fill = 'lightblue', 
+                 position = 'dodge') +
   ggtitle("Histogram of variable age via sex (0 - female, 1 - male)") +
   facet_grid(~ sex)
 
 ggplot(data = data, aes(x = cholesterol, color = sex)) +
-  geom_histogram(color = 'black', fill = 'lightblue', position = 'dodge') +
+  geom_histogram(color = 'black', 
+                 fill = 'lightblue', 
+                 position = 'dodge') +
   ggtitle("Histogram of variable cholesterol via sex (0 - female, 1 - male)") +
   facet_grid(~ sex)
 
 ggplot(data = data, aes(x = chest.pain.type, color = sex)) +
-  geom_bar(color = 'black', fill = 'lightblue') +
+  geom_bar(color = 'black', 
+           fill = 'lightblue') +
   ggtitle("Number of observations for every chest pain type")
 
 ggplot(data = data, aes(x = max.heart.rate, color = sex)) +
-  geom_histogram(binwidth = 10, color = 'black', fill = 'lightblue', position = 'dodge') +
+  geom_histogram(binwidth = 10, 
+                 color = 'black', 
+                 fill = 'lightblue', 
+                 position = 'dodge') +
   ggtitle("Histogram of variable max.heart.rate via sex (0 - female, 1 - male)") +
   facet_grid(~ sex)
 
+# Check structure of the data
 str(data)
 
 # There is only one observation with ST.slope 0
@@ -69,10 +80,12 @@ data$ST.slope.downsloping <- ifelse(data$ST.slope == 3, 1, 0)
 # Finally prepared dataset
 data <- data[, -c(3, 7, 11)]
 
-# Model
+# ----------------------------- MODEL --------------------------------
 
 # Initial model with all variables
-logit_0 <- glm(target ~ . + I(age^2) + age:max.heart.rate, data = data, family = binomial('logit'))
+logit_0 <- glm(target ~ . + I(age^2) + age:max.heart.rate, 
+               data = data, 
+               family = binomial('logit'))
 summary(logit_0)
 
 # Linktest
@@ -119,6 +132,7 @@ lrtest(logit_0, null_model)
 
 # H0: resting.ecg.1 = 0
 linearHypothesis(logit_0, "resting.ecg.1 = 0")
+
 # New_model
 logit_1 <- glm(target ~ age + sex + resting.bp.s + cholesterol
                + fasting.blood.sugar + max.heart.rate + exercise.angina
@@ -126,14 +140,17 @@ logit_1 <- glm(target ~ age + sex + resting.bp.s + cholesterol
                + chest.pain.type.asymptomatic + resting.ecg.2 
                + ST.slope.flat + ST.slope.downsloping + I(age^2) + age:max.heart.rate, 
                data = data, family = binomial('logit'))
+
 # P-value = 95% > 5% (significance level alpha), we fail to reject H0
 summary(logit_1)
+
 # Check if variables "resting.ecg.1", "chest.pain.type.atypical.angina" 
 # are jointly statistically insignificant
 
 # H0: resting.ecg.1 = 0 & chest.pain.type.atypical.angina = 0
 linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
                             "chest.pain.type.atypical.angina = 0"))
+
 # Model
 logit_2 <- glm(target ~ age + sex + resting.bp.s + cholesterol
                + fasting.blood.sugar + max.heart.rate + exercise.angina
@@ -153,6 +170,7 @@ summary(logit_2)
 linearHypothesis(logit_0, c("resting.ecg.1 = 0", 
                             "chest.pain.type.atypical.angina = 0",
                             "chest.pain.type.non.anginal = 0"))
+
 # Model
 logit_3 <- glm(target ~ age + sex + resting.bp.s + cholesterol
                + fasting.blood.sugar + max.heart.rate + exercise.angina
@@ -172,6 +190,7 @@ linearHypothesis(logit_0, c("resting.ecg.1 = 0",
                             "chest.pain.type.atypical.angina = 0",
                             "chest.pain.type.non.anginal = 0",
                             "I(age^2) = 0"))
+
 # Model
 logit_4 <- glm(target ~ age + sex + resting.bp.s + cholesterol
                + fasting.blood.sugar + max.heart.rate + exercise.angina
