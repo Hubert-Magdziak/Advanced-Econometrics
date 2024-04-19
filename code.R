@@ -364,9 +364,37 @@ logitmfx(formula = target ~ sex + cholesterol + fasting.blood.sugar + max.heart.
 # On average men have about 18.1 p.p higher probability of having heart disease
 # than women ceteris paribus.
 
+#---------------------------- Performance --------------------------------
+
 # Measures to assess performance of the model - McKelveyZavoina
 PseudoR2(final_model, which = "all")
 
 # McKelveyZavoina = 66%
 # If a hidden variable would be observed, the model would explain about 66% of 
 # its total variation.
+
+# Count R2
+
+# Define function countR2
+countR2<-function(m) mean(m$y==round(m$fitted.values))
+
+# Use the function countR2 on the final model
+countR2(final_model)
+
+# About 85.5% of observations were predicted correctly by the model
+
+# Adjusted Count R2
+
+# Define function adj.countR2
+adj.countR2<-function(m) {
+  n<-length(m$y)
+  k<-max(table(m$y))
+  correct<-table(m$y==round(m$fitted.values))[["TRUE"]]
+  (correct-k)/(n-k)
+}
+
+# Use the function adj.countR2 on the final model
+adj.countR2(final_model)
+
+# About 69% of the observations were predicted based only on the
+# variables used for modelling
