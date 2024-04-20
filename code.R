@@ -443,3 +443,13 @@ adj.countR2(final_model)
 
 # About 68.6% of the observations were predicted based only on the
 # variables used for modelling
+
+
+# VIF
+vif(final_model)
+
+# For all variables in our final model Variance Inflation Factor (VIF) is 
+# not higher than 1.77. Therefore the assumption about lack of multicollinearity
+# in the model is fulfilled.
+
+
