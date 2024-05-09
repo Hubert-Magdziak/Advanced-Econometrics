@@ -52,6 +52,18 @@ ggplot(data = data, aes(x = max.heart.rate, color = sex)) +
   ggtitle("Histogram of variable max.heart.rate via sex (0 - female, 1 - male)") +
   facet_grid(~ sex)
 
+# What is the number of people with heart disease (via variable sex)?
+data %>%
+  group_by(sex, target) %>%
+  count()
+
+# What is the median of variables age, max.heart.rate, cholesterol for different
+# sex and status of heart disease?
+data %>%
+  group_by(sex, target) %>%
+  summarize(medianAge = median(age),
+            medianMaxHeartRate = median(max.heart.rate),
+            medianCholesterol = median(cholesterol))
 # Check structure of the data
 str(data)
 
