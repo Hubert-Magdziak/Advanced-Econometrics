@@ -52,18 +52,46 @@ ggplot(data = data, aes(x = max.heart.rate, color = sex)) +
   ggtitle("Histogram of variable max.heart.rate via sex (0 - female, 1 - male)") +
   facet_grid(~ sex)
 
-# What is the number of people with heart disease (via variable sex)?
-data %>%
-  group_by(sex, target) %>%
-  count()
+# Create boxplots
+
+df <- data[,c(2, 3, 4, 5, 8)]
+df$sex <- as.factor(ifelse(df$sex == 0, "F", "M"))
+df$chest.pain.type <- as.factor(df$chest.pain.type)
+ggplot(data = df, aes(x = chest.pain.type, y = cholesterol, fill = sex)) +
+  geom_boxplot()
+
+
+# Create age pyramid for the dataset
+d <- data %>%
+  group_by(sex, age) %>%
+  count() %>%
+  ungroup()
+d$sex <- as.factor(ifelse(d$sex == 0, "F", "M"))
+glimpse(d)
+
+
+d %>%
+  mutate(population = ifelse(sex == "F", n * -1, n)) %>%
+  ggplot(aes(x = age, y = population, fill = sex)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  scale_fill_brewer(type = "seq", palette = 7) +
+  labs(y = "Population", x = "Age", title = "Age Pyramid") +
+  theme_minimal()
+
 
 # What is the median of variables age, max.heart.rate, cholesterol for different
 # sex and status of heart disease?
+
+ggplot(data = data, aes(x = age)) +
+  geom_histogram()
+
 data %>%
   group_by(sex, target) %>%
   summarize(medianAge = median(age),
             medianMaxHeartRate = median(max.heart.rate),
-            medianCholesterol = median(cholesterol))
+            medianCholesterol = median(cholesterol),
+            Obs = n())
 # Check structure of the data
 str(data)
 
