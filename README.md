@@ -1,6 +1,7 @@
 # Advanced Econometrics paper at the Faculty of Economic Sciences, University of Warsaw
 The repository consists of:
--	data used for the modelling - *heart_statlog_cleveland_hungary_final.csv*  
+-	data used for the modelling - *heart_statlog_cleveland_hungary_final.csv*
+-	documentation for the data - *documentation.pdf*
 -	code to reproduce the findings - *code.R*  
 -	code to calculate the Linktest - *linktest.R*  
 -	code to calculate the marginal effects - *marginaleffects.R*  
